@@ -1,0 +1,1 @@
+Pseudo-random intervals method consists in randomly distributing bits of the secret message across the container-image.
