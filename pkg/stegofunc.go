@@ -33,8 +33,8 @@ func EmbedMessage(img image.Image, message []byte, key []byte) (image.Image, int
 	for i := int(key[keyIdx]); i < imgLen; i += int(key[keyIdx]) {
 		if messageIdx < len(message) {
 
-			x := i % imgLen
-			y := i / imgLen
+			x := i % width
+			y := i / width
 
 			pix := newImg.At(x, y)
 			r, g, b, a := pix.RGBA()
@@ -63,8 +63,7 @@ func EmbedMessage(img image.Image, message []byte, key []byte) (image.Image, int
 func ExtractMessage(img image.Image, messageLen uint32, key []byte) []byte {
 
 	bounds := img.Bounds()
-	width, height := bounds.Max.X, bounds.Max.Y
-	imgLen := width * height
+	width := bounds.Max.X
 
 	var message []byte
 	keyIdx := int(key[0])
@@ -72,8 +71,8 @@ func ExtractMessage(img image.Image, messageLen uint32, key []byte) []byte {
 
 	for messageIdx := 0; messageIdx < int(messageLen); {
 
-		x := imgIdx % imgLen
-		y := imgIdx / imgLen
+		x := imgIdx % width
+		y := imgIdx / width
 
 		pix := img.At(x, y)
 		_, _, b, _ := pix.RGBA()
