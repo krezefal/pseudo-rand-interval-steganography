@@ -83,7 +83,7 @@ func GenerateKey(keyLen int, maxInterval int) []byte {
 	r := rand.New(seed)
 
 	for i := range key {
-		key[i] = byte(r.Intn(maxInterval))
+		key[i] = byte(r.Intn(maxInterval) + 1)
 	}
 
 	return key
