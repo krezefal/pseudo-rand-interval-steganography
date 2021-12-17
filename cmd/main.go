@@ -90,7 +90,7 @@ func extractingProcedure(src *string) {
 		message = ExtractMessage(img, messageLen, key)
 
 		logrus.Info("Extracted message:\n", message)
-		logrus.Info("Length of this message is ", messageLen, " bits")
+		logrus.Info("Length of this message is ", len(message), " bits")
 	} else {
 		logrus.Debug("Detecting failed")
 		logrus.Info("Unable to extract message. " +
