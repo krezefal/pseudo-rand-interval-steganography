@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// ReadImage reads image at specified path. For bmp only.
 func ReadImage(filePath string) (image.Image, error) {
 	imgFile, err := os.Open(filePath)
 	if err != nil {
@@ -17,6 +18,7 @@ func ReadImage(filePath string) (image.Image, error) {
 	return bmp.Decode(imgFile)
 }
 
+// WriteImage writes image to specified path. For bmp only.
 func WriteImage(filePath string, img image.Image) error {
 	if file, err := os.Create(filePath); err != nil {
 		return err
@@ -29,6 +31,8 @@ func WriteImage(filePath string, img image.Image) error {
 	return nil
 }
 
+// ConvertToRGBA translates specified instance of image represented as Image interface into RGBA structure in order to
+// be able to modify image array later.
 func ConvertToRGBA(img image.Image) *image.RGBA {
 
 	bounds := img.Bounds()
@@ -43,7 +47,7 @@ func ConvertToRGBA(img image.Image) *image.RGBA {
 	return imgRGBA
 }
 
-// GenerateMessage func generates specified binary sequence
+// GenerateMessage generates specified binary sequence.
 func GenerateMessage(sequence string) []byte {
 	message := make([]byte, len(sequence))
 
@@ -58,7 +62,7 @@ func GenerateMessage(sequence string) []byte {
 	return message
 }
 
-// GenerateRandomMessage func generates random binary sequence with specified length
+// GenerateRandomMessage generates random binary sequence with specified length.
 func GenerateRandomMessage(length int) []byte {
 	rMessage := make([]byte, length)
 
@@ -76,6 +80,8 @@ func GenerateRandomMessage(length int) []byte {
 	return rMessage
 }
 
+// GenerateKey generates key of random intervals with specified length in the range from one to specified maximum
+// interval step.
 func GenerateKey(keyLen int, maxInterval int) []byte {
 	key := make([]byte, keyLen)
 

@@ -6,6 +6,8 @@ import (
 	"image/color"
 )
 
+// makeEqualToMessageBit makes the least significant bit of specified pixel component equal to current message
+// bit. This way the message bit is saved in the image pixel.
 func makeEqualToMessageBit(component uint32, messageBit byte) uint32 {
 	if component%2 == uint32(messageBit) {
 		return component
@@ -20,6 +22,8 @@ func makeEqualToMessageBit(component uint32, messageBit byte) uint32 {
 	}
 }
 
+// EmbedMessage embeds given message into image-container so this message becomes hidden inside the image. It also returns
+// the number of bits which fit inside the container.
 func EmbedMessage(img image.Image, message []byte, key []byte) (image.Image, int) {
 
 	bounds := img.Bounds()
@@ -60,7 +64,8 @@ func EmbedMessage(img image.Image, message []byte, key []byte) (image.Image, int
 	return newImg, messageIdx
 }
 
-func ExtractMessage(img image.Image, messageLen uint32, key []byte) []byte {
+// ExtractMessage extracts hidden message from image-container and returns it.
+func ExtractMessage(img image.Image, messageLen int, key []byte) []byte {
 
 	bounds := img.Bounds()
 	width := bounds.Max.X
@@ -69,7 +74,7 @@ func ExtractMessage(img image.Image, messageLen uint32, key []byte) []byte {
 	keyIdx := int(key[0])
 	imgIdx := keyIdx
 
-	for messageIdx := 0; messageIdx < int(messageLen); {
+	for messageIdx := 0; messageIdx < messageLen; {
 
 		x := imgIdx % width
 		y := imgIdx / width
@@ -91,9 +96,10 @@ func ExtractMessage(img image.Image, messageLen uint32, key []byte) []byte {
 	return message
 }
 
-func EmbedMetadata(file []byte, messageLen uint32, key []byte) []byte {
+// EmbedMetadata embeds random intervals' key and message length to the end of the file.
+func EmbedMetadata(file []byte, messageLen int, key []byte) []byte {
 	ml := make([]byte, 4)
-	binary.LittleEndian.PutUint32(ml, messageLen)
+	binary.LittleEndian.PutUint32(ml, uint32(messageLen))
 
 	file = append(file, 0x55)
 	file = append(file, ml...)
@@ -103,6 +109,8 @@ func EmbedMetadata(file []byte, messageLen uint32, key []byte) []byte {
 	return file
 }
 
+// DetectEmbedding checks the end of given file on presence of random intervals' key and message length embedded before
+// between special separators. Returns the detection flag.
 func DetectEmbedding(file []byte, keyLen int) bool {
 	if file[len(file)-1] == 0x55 && file[len(file)-6-keyLen] == 0x55 {
 		return true
@@ -110,11 +118,12 @@ func DetectEmbedding(file []byte, keyLen int) bool {
 	return false
 }
 
-func ExtractMetadata(file []byte, keyLen int) (uint32, []byte) {
+// ExtractMetadata extracts random intervals' key and hidden message length from the end of the file.
+func ExtractMetadata(file []byte, keyLen int) (int, []byte) {
 	key := file[len(file)-keyLen-1 : len(file)-1]
 
 	ml := file[len(file)-keyLen-4-1 : len(file)-keyLen-1]
 	messageLen := binary.LittleEndian.Uint32(ml)
 
-	return messageLen, key
+	return int(messageLen), key
 }
