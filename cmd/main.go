@@ -18,7 +18,7 @@ func embeddingProcedure(src, tg *string, r *int, m *string) {
 	}
 
 	logrus.Debug("Starting read image")
-	sourceImage, err := ReadImage(*src)
+	srcImg, err := ReadImage(*src)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func embeddingProcedure(src, tg *string, r *int, m *string) {
 		message = GenerateRandomMessage(*r)
 		logrus.Info("Random message to embed:\n", message)
 	} else {
-		logrus.Debug("Converting given message to byte sequence")
+		logrus.Debug("Converting given message to bit sequence")
 		message = GenerateMessage(*m)
 	}
 
@@ -41,7 +41,7 @@ func embeddingProcedure(src, tg *string, r *int, m *string) {
 	key := GenerateKey(keyLen, maxInterval)
 
 	logrus.Debug("Embedding message into image according to random intervals")
-	modifiedImage, messageLen := EmbedMessage(sourceImage, message, key)
+	modifiedImg, messageLen := EmbedMessage(srcImg, message, key)
 	if messageLen == len(message) {
 		logrus.Info("All ", messageLen, " bits of message has been placed into image-container")
 	} else {
@@ -49,7 +49,7 @@ func embeddingProcedure(src, tg *string, r *int, m *string) {
 	}
 
 	logrus.Debug("Saving image with embedded message only")
-	if err := WriteImage(*tg, modifiedImage); err != nil {
+	if err := WriteImage(*tg, modifiedImg); err != nil {
 		logrus.Fatal(err)
 	}
 
@@ -57,7 +57,7 @@ func embeddingProcedure(src, tg *string, r *int, m *string) {
 	if file, err := os.ReadFile(*tg); err != nil {
 		logrus.Fatal(err)
 	} else {
-		file = EmbedMetadata(file, uint32(messageLen), key)
+		file = EmbedMetadata(file, messageLen, key)
 		logrus.Debug("Saving image with embedded message and its metadata")
 		if err := os.WriteFile(*tg, file, 0644); err != nil {
 			logrus.Fatal(err)
